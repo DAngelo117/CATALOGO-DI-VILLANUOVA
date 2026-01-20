@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visor de catálogos</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0F2F2A; }
+    .topbar{
+      position: fixed; top: 0; left: 0; right: 0; height: 48px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 14px;
+      background: rgba(15,47,42,0.92);
+      border-bottom: 1px solid rgba(235,187,113,0.25);
+      z-index: 10;
+      font-family: Arial, sans-serif;
+    }
+    .brand { color: #EBBB71; font-weight: 700; font-size: 14px; letter-spacing: 0.3px; }
+    .spacer { flex: 1; }
+    .btn {
+      color: #0F2F2A; background: #EBBB71; text-decoration: none;
+      font-weight: 700; font-size: 13px;
+      padding: 8px 10px; border-radius: 10px;
+    }
+    iframe{
+      position: fixed;
+      top: 48px; left: 0; right: 0; bottom: 0;
+      width: 100%; height: calc(100% - 48px);
+      border: 0; display: block; background: #0F2F2A;
+    }
+    .fallback {
+      position: fixed; inset: 48px 0 0 0;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      color: #EBBB71;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .hint { color: rgba(235,187,113,0.85); font-size: 13px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand" id="title">Di Villanuova · Catálogo</div>
+    <div class="spacer"></div>
+    <a class="btn" id="openExternal" href="#" target="_blank" rel="noopener">Abrir en navegador</a>
+    <a class="btn" id="download" href="#" download>Descargar PDF</a>
+  </div>
+
+  <iframe id="frame" title="PDF Viewer"></iframe>
+
+  <div class="fallback" id="fallback">
+    <div>No se pudo cargar el visor dentro de WhatsApp.</div>
+    <div class="hint">Toca “Abrir en navegador” o “Descargar PDF”.</div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const file = params.get("file");          // ej: pdf/flexi.pdf
+    const name = params.get("name");          // opcional: Flexi
+    const frame = document.getElementById("frame");
+    const fallback = document.getElementById("fallback");
+    const title = document.getElementById("title");
+    const openExternal = document.getElementById("openExternal");
+    const download = document.getElementById("download");
+
+    if (name) title.textContent = `Di Villanuova · ${name}`;
+
+    if (!file) {
+      fallback.style.display = "grid";
+      frame.style.display = "none";
+      openExternal.href = "#";
+      download.href = "#";
+    } else {
+      const pdfUrl = new URL(file, location.href).toString();
+
+      // PDF.js viewer hosted by Mozilla (estable y mobile-friendly)
+      const viewer = "https://mozilla.github.io/pdf.js/web/viewer.html";
+      const viewerUrl = viewer + "?file=" + encodeURIComponent(pdfUrl);
+
+      frame.src = viewerUrl;
+      openExternal.href = viewerUrl;
+      download.href = pdfUrl;
+
+      // Si WhatsApp bloquea el iframe (muy común), mostramos fallback
+      setTimeout(() => {
+        try {
+          const blocked = !frame.contentWindow || frame.src.includes("mozilla.github.io") === false;
+          // También si se queda sin cargar (heurística simple)
+          if (!frame.src || frame.src === "about:blank") fallback.style.display = "grid";
+        } catch (e) {
+          fallback.style.display = "grid";
+        }
+      }, 1500);
+    }
+  </script>
+</body>
+</html>
