@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Di Villanuova · Catálogos</title>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const marca = params.get("marca");
+
+    const rutas = {
+      flexi: "flexi.html",
+      jeep: "jeep.html",
+      truper: "truper.html",
+      prezenza: "prezenza.html",
+      bigbang: "bigbang.html",
+      berrendo: "berrendo.html",
+      dkps: "dkps.html",
+      fit_be_fresh: "fit be fresh.html",
+      playerytees: "playerytees.html",
+    };
+
+    if (marca && rutas[marca]) {
+      window.location.replace(rutas[marca]);
+    } else {
+      // Fallback general (marca por defecto)
+      window.location.replace("flexi.html");
+    }
+  </script>
+</head>
+
+<body>
+</body>
+</html>
+
